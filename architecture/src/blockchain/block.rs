@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 use crate::utils::utils::crypto_hash;
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Block {
     pub timestamp: DateTime<Utc>,
     pub last_hash: String,
@@ -37,7 +37,7 @@ impl Block {
         }
     }
 
-    pub fn mine_block(last_block: &Block, data: &String) -> Block {
+    pub fn mine_block(last_block: &Block, data: String) -> Block {
         let timestamp = Local::now().with_timezone(&Utc);
         let last_hash = last_block.hash.clone();
         // make hash from all the block properties and nonce

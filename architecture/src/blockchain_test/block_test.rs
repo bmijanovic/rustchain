@@ -37,6 +37,6 @@ fn test_mine_block() {
     let last_block = Block::genesis();
     let data = String::from("mined data");
 
-    let mined_block = Block::mine_block(&last_block, &data);
+    let mined_block = Block::mine_block(&last_block, data);
     print!("{}", mined_block)
 }
