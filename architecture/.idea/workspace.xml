@@ -8,13 +8,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="934439d8-b871-4678-b291-62865232ff86" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/src/blockchain_test/block_test.rs" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/blockchain_test/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../.idea/Diplomski.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/Diplomski.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Architecture.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Architecture.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/blockchain/block.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain/block.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/blockchain_test/block_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain_test/block_test.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -35,9 +32,9 @@
   <component name="MacroExpansionManager">
     <option name="directoryName" value="34bak7c0" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="2iPhKmZWig6DYQohlPSOhr0LLsU" />
   <component name="ProjectLevelVcsManager">
     <ConfirmationsSetting value="1" id="Add" />
@@ -51,9 +48,10 @@
     "Cargo.Test blockchain_test::block_test::test_block (1).executor": "Run",
     "Cargo.Test blockchain_test::block_test::test_block.executor": "Run",
     "Cargo.Test blockchain_test::block_test::test_genesis_block.executor": "Run",
+    "Cargo.Test blockchain_test::block_test::test_mine_block.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "git-widget-placeholder": "development",
+    "git-widget-placeholder": "mine__blocks",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
@@ -66,7 +64,7 @@
   <component name="RsExternalLinterProjectSettings">
     <option name="runOnTheFly" value="true" />
   </component>
-  <component name="RunManager" selected="Cargo.Test blockchain_test::block_test::test_genesis_block">
+  <component name="RunManager" selected="Cargo.Test blockchain_test::block_test::test_mine_block">
     <configuration name="Run architecture" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="run --package architecture --bin architecture" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -169,8 +167,26 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
+    <configuration name="Test blockchain_test::block_test::test_mine_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::block_test::test_mine_block -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test blockchain_test::block_test::test_mine_block" />
         <item itemvalue="Cargo.Test blockchain_test::block_test::test_genesis_block" />
         <item itemvalue="Cargo.Test blockchain_test::block_test::test_block (1)" />
         <item itemvalue="Cargo.Test blockchain_test::block_test::test_block" />
@@ -189,10 +205,22 @@
       <option name="presentableId" value="Default" />
       <updated>1719398057655</updated>
       <workItem from="1719398058829" duration="1488000" />
+      <workItem from="1719400836012" duration="2067000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/blockchain_test/block_test.rs</url>
+          <line>35</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
