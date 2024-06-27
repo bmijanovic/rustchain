@@ -44,7 +44,9 @@ impl Block {
         let hash = crypto_hash(&[
             json!(&timestamp),
             json!(&last_hash),
-            json!(&data)
+            json!(&data),
+            json!(&last_block.nonce),
+            json!(&last_block.difficulty)
         ]);
         Block {
             timestamp,
@@ -55,6 +57,16 @@ impl Block {
             difficulty: 0,
         }
 
+    }
+
+    pub fn block_hash(block: &Block) -> String {
+        crypto_hash(&[
+            json!(&block.timestamp),
+            json!(&block.last_hash),
+            json!(&block.data),
+            json!(&block.nonce),
+            json!(&block.difficulty)
+        ])
     }
 }
 
@@ -67,3 +79,12 @@ impl fmt::Display for Block {
     }
 }
 
+impl PartialEq for Block {
+    fn eq(&self, other: &Self) -> bool {
+        self.last_hash == other.last_hash &&
+            self.hash == other.hash &&
+            self.data == other.data &&
+            self.nonce == other.nonce &&
+            self.difficulty == other.difficulty
+    }
+}

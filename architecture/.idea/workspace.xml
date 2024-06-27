@@ -11,10 +11,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/blockchain/block.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain/block.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/blockchain/blockchain.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain/blockchain.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockchain/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain/mod.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockchain_test/block_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain_test/block_test.rs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/blockchain_test/blockchain_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain_test/blockchain_test.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockchain_test/mod.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain_test/mod.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,10 +48,12 @@
     "Cargo.Test blockchain_test::block_test::test_block.executor": "Run",
     "Cargo.Test blockchain_test::block_test::test_genesis_block.executor": "Run",
     "Cargo.Test blockchain_test::block_test::test_mine_block.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_add_block.executor": "Run",
     "Cargo.Test blockchain_test::blockchain_test::test_blockchain.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_validates_a_valid_chain.executor": "Debug",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "git-widget-placeholder": "development",
+    "git-widget-placeholder": "blockchain-initialisation",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
@@ -67,7 +66,7 @@
   <component name="RsExternalLinterProjectSettings">
     <option name="runOnTheFly" value="true" />
   </component>
-  <component name="RunManager" selected="Cargo.Test blockchain_test::blockchain_test::test_add_block">
+  <component name="RunManager" selected="Cargo.Test blockchain_test::blockchain_test::test_start_with_genesis">
     <configuration name="Run architecture" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="run --package architecture --bin architecture" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -119,57 +118,6 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test blockchain_test::block_test::test_block (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --bin architecture blockchain_test::block_test::test_block -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test blockchain_test::block_test::test_genesis_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --bin architecture blockchain_test::block_test::test_genesis_block -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
-    <configuration name="Test blockchain_test::block_test::test_mine_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --bin architecture blockchain_test::block_test::test_mine_block -- --exact" />
-      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
-      <envs />
-      <option name="emulateTerminal" value="true" />
-      <option name="channel" value="DEFAULT" />
-      <option name="requiredFeatures" value="true" />
-      <option name="allFeatures" value="false" />
-      <option name="withSudo" value="false" />
-      <option name="buildTarget" value="REMOTE" />
-      <option name="backtrace" value="SHORT" />
-      <option name="isRedirectInput" value="false" />
-      <option name="redirectInputPath" value="" />
-      <method v="2">
-        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="Test blockchain_test::blockchain_test::test_add_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
       <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_add_block -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -187,8 +135,59 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test blockchain_test::blockchain_test::test_blockchain" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_blockchain -- --exact" />
+    <configuration name="Test blockchain_test::blockchain_test::test_invalidates_a_chain_with_a_corrupt_genesis_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_invalidates_a_chain_with_a_corrupt_genesis_block -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test blockchain_test::blockchain_test::test_invalidates_a_corrupt_chain" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_invalidates_a_corrupt_chain -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test blockchain_test::blockchain_test::test_start_with_genesis" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_start_with_genesis -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test blockchain_test::blockchain_test::test_validates_a_valid_chain" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_validates_a_valid_chain -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -206,11 +205,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_start_with_genesis" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_invalidates_a_corrupt_chain" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_invalidates_a_chain_with_a_corrupt_genesis_block" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_validates_a_valid_chain" />
         <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_add_block" />
-        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_blockchain" />
-        <item itemvalue="Cargo.Test blockchain_test::block_test::test_mine_block" />
-        <item itemvalue="Cargo.Test blockchain_test::block_test::test_genesis_block" />
-        <item itemvalue="Cargo.Test blockchain_test::block_test::test_block (1)" />
       </list>
     </recent_temporary>
   </component>
@@ -240,6 +239,11 @@
           <url>file://$PROJECT_DIR$/src/blockchain_test/block_test.rs</url>
           <line>35</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/blockchain_test/blockchain_test.rs</url>
+          <line>32</line>
+          <option name="timeStamp" value="5" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

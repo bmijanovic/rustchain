@@ -1,12 +1,8 @@
 use crate::blockchain::blockchain::Blockchain;
 
-// make me tests:
-// before each test, create a new blockchain
-// 1. test that a blockchain is created with a genesis block
-// 2. test that a block is added to the blockchain
 
 #[test]
-fn test_blockchain() {
+fn test_start_with_genesis() {
     let mut blockchain = Blockchain::new();
     assert_eq!(blockchain.chain.len(), 1);
     assert_eq!(blockchain.chain[0].data, "genesis_data");
@@ -28,3 +24,24 @@ fn test_add_block() {
     assert_eq!(blockchain.chain[1].difficulty, 0);
 }
 
+#[test]
+fn test_validates_a_valid_chain() {
+    let mut blockchain = Blockchain::new();
+    blockchain.add_block(String::from("new block data"));
+    assert_eq!(Blockchain::is_valid_chain(&blockchain.chain), true);
+}
+
+#[test]
+fn test_invalidates_a_chain_with_a_corrupt_genesis_block() {
+    let mut blockchain = Blockchain::new();
+    blockchain.chain[0].data = String::from("corrupt data");
+    assert_eq!(Blockchain::is_valid_chain(&blockchain.chain), false);
+}
+
+#[test]
+fn test_invalidates_a_corrupt_chain() {
+    let mut blockchain = Blockchain::new();
+    blockchain.add_block(String::from("new block data"));
+    blockchain.chain[1].data = String::from("corrupt data");
+    assert_eq!(Blockchain::is_valid_chain(&blockchain.chain), false);
+}
