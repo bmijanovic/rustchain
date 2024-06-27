@@ -36,6 +36,19 @@ impl Blockchain {
         
         true
     }
+    
+    pub fn replace_chain(&mut self, new_chain: Vec<Block>) {
+        if new_chain.len() <= self.chain.len() {
+            println!("Received chain is not longer than the current chain.");
+            return;
+        } else if !Blockchain::is_valid_chain(&new_chain) {
+            println!("Received chain is not valid.");
+            return;
+        }
+        
+        println!("Replacing blockchain with the new chain.");
+        self.chain = new_chain;
+    }
 }
 
 
