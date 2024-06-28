@@ -1,0 +1,12 @@
+[package]
+name = "p2p"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+architecture = { path = "../architecture", version = "0.1.0" }
+warp = "0.3.7"
+tokio = { version = "1.38.0", features = ["full"] }
+http = "1.1.0"

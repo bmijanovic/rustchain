@@ -2,11 +2,12 @@ use std::fmt;
 
 use chrono::{DateTime, Local, Utc};
 use serde::{Deserialize, Serialize};
+use serde::ser::SerializeStruct;
 use serde_json::json;
 
 use crate::utils::utils::crypto_hash;
 
-#[derive(Debug, Serialize, Deserialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct Block {
     pub timestamp: DateTime<Utc>,
     pub last_hash: String,
@@ -78,6 +79,22 @@ impl fmt::Display for Block {
         let hash = &self.hash[..10];
         write!(f, "Block - \n    Timestamp: {}, \n    Last Hash: {}, \n    Hash: {}, \n    Data: {}, \n    Nonce: {}, \n    Difficulty: {}"
                , self.timestamp, last_hash, hash, self.data, self.nonce, self.difficulty)
+    }
+}
+
+impl Serialize for Block {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where S: serde::Serializer {
+        let last_hash = &self.last_hash[..10];
+        let hash = &self.hash[..10];
+        let mut state = serializer.serialize_struct("Block", 6)?;
+        state.serialize_field("timestamp", &self.timestamp.to_rfc2822())?;
+        state.serialize_field("last_hash", last_hash)?;
+        state.serialize_field("hash", hash)?;
+        state.serialize_field("data", &self.data)?;
+        state.serialize_field("nonce", &self.nonce)?;
+        state.serialize_field("difficulty", &self.difficulty)?;
+        state.end()
     }
 }
 
