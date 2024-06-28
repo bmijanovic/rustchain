@@ -1,6 +1,4 @@
-use serde_json::json;
 use crate::blockchain::block::Block;
-use crate::utils::utils::crypto_hash;
 
 pub struct Blockchain {
     pub chain: Vec<Block>,

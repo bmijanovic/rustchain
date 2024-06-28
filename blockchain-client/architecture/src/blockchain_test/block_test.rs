@@ -1,5 +1,6 @@
+use chrono::{Local, Utc};
+
 use crate::blockchain::block::Block;
-use chrono::{Local, DateTime, Utc};
 
 #[test]
 fn test_block() {

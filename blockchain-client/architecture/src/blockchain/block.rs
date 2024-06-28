@@ -1,8 +1,10 @@
 use std::fmt;
-use chrono::{Local, DateTime, Utc};
-use serde_json::{json, Value};
+
+use chrono::{DateTime, Local, Utc};
+use serde::{Deserialize, Serialize};
+use serde_json::json;
+
 use crate::utils::utils::crypto_hash;
-use serde::{Serialize, Deserialize};
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Block {

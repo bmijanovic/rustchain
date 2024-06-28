@@ -1,6 +1,6 @@
-use sha2::{Sha256, Digest};
 use hex;
-use serde_json::{json, Value};
+use serde_json::Value;
+use sha2::{Digest, Sha256};
 
 pub(crate) fn crypto_hash(inputs: &[Value]) -> String {
     let mut hasher = Sha256::new();
