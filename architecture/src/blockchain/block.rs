@@ -4,7 +4,7 @@ use serde_json::{json, Value};
 use crate::utils::utils::crypto_hash;
 use serde::{Serialize, Deserialize};
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct Block {
     pub timestamp: DateTime<Utc>,
     pub last_hash: String,
@@ -37,14 +37,16 @@ impl Block {
         }
     }
 
-    pub fn mine_block(last_block: &Block, data: &String) -> Block {
+    pub fn mine_block(last_block: &Block, data: String) -> Block {
         let timestamp = Local::now().with_timezone(&Utc);
         let last_hash = last_block.hash.clone();
         // make hash from all the block properties and nonce
         let hash = crypto_hash(&[
             json!(&timestamp),
             json!(&last_hash),
-            json!(&data)
+            json!(&data),
+            json!(&last_block.nonce),
+            json!(&last_block.difficulty)
         ]);
         Block {
             timestamp,
@@ -55,6 +57,16 @@ impl Block {
             difficulty: 0,
         }
 
+    }
+
+    pub fn block_hash(block: &Block) -> String {
+        crypto_hash(&[
+            json!(&block.timestamp),
+            json!(&block.last_hash),
+            json!(&block.data),
+            json!(&block.nonce),
+            json!(&block.difficulty)
+        ])
     }
 }
 
@@ -67,3 +79,12 @@ impl fmt::Display for Block {
     }
 }
 
+impl PartialEq for Block {
+    fn eq(&self, other: &Self) -> bool {
+        self.last_hash == other.last_hash &&
+            self.hash == other.hash &&
+            self.data == other.data &&
+            self.nonce == other.nonce &&
+            self.difficulty == other.difficulty
+    }
+}

@@ -9,10 +9,8 @@
   <component name="ChangeListManager">
     <list default="true" id="934439d8-b871-4678-b291-62865232ff86" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Cargo.toml" beforeDir="false" afterPath="$PROJECT_DIR$/Cargo.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockchain/block.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain/block.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/blockchain_test/block_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain_test/block_test.rs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/blockchain/blockchain.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain/blockchain.rs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/blockchain_test/blockchain_test.rs" beforeDir="false" afterPath="$PROJECT_DIR$/src/blockchain_test/blockchain_test.rs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -49,9 +47,17 @@
     "Cargo.Test blockchain_test::block_test::test_block.executor": "Run",
     "Cargo.Test blockchain_test::block_test::test_genesis_block.executor": "Run",
     "Cargo.Test blockchain_test::block_test::test_mine_block.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_add_block.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_blockchain.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_does_not_replace_chain_with_one_of_equal_or_less_length.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_invalidates_a_chain_with_a_corrupt_genesis_block.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_invalidates_a_corrupt_chain.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_replaces_chain_with_a_valid_chain.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_start_with_genesis.executor": "Run",
+    "Cargo.Test blockchain_test::blockchain_test::test_validates_a_valid_chain.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
     "RunOnceActivity.rust.reset.selective.auto.import": "true",
-    "git-widget-placeholder": "mine__blocks",
+    "git-widget-placeholder": "blockchain-initialisation",
     "node.js.detected.package.eslint": "true",
     "node.js.selected.package.eslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
@@ -64,7 +70,7 @@
   <component name="RsExternalLinterProjectSettings">
     <option name="runOnTheFly" value="true" />
   </component>
-  <component name="RunManager" selected="Cargo.Test blockchain_test::block_test::test_mine_block">
+  <component name="RunManager" selected="Cargo.Test blockchain_test::blockchain_test::test_does_not_replace_chain_with_one_of_equal_or_less_length">
     <configuration name="Run architecture" type="CargoCommandRunConfiguration" factoryName="Cargo Command">
       <option name="command" value="run --package architecture --bin architecture" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
@@ -116,8 +122,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test blockchain_test::block_test::test_block (1)" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --bin architecture blockchain_test::block_test::test_block -- --exact" />
+    <configuration name="Test blockchain_test::blockchain_test::test_does_not_replace_chain_with_one_of_equal_or_less_length" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_does_not_replace_chain_with_one_of_equal_or_less_length -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -133,8 +139,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test blockchain_test::block_test::test_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --test src blockchain_test::block_test::test_block -- --exact" />
+    <configuration name="Test blockchain_test::blockchain_test::test_invalidates_a_chain_with_a_corrupt_genesis_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_invalidates_a_chain_with_a_corrupt_genesis_block -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -150,8 +156,8 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test blockchain_test::block_test::test_genesis_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --bin architecture blockchain_test::block_test::test_genesis_block -- --exact" />
+    <configuration name="Test blockchain_test::blockchain_test::test_invalidates_a_corrupt_chain" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_invalidates_a_corrupt_chain -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -167,8 +173,25 @@
         <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
       </method>
     </configuration>
-    <configuration name="Test blockchain_test::block_test::test_mine_block" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
-      <option name="command" value="test --package architecture --bin architecture blockchain_test::block_test::test_mine_block -- --exact" />
+    <configuration name="Test blockchain_test::blockchain_test::test_replaces_chain_with_a_valid_chain" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_replaces_chain_with_a_valid_chain -- --exact" />
+      <option name="workingDirectory" value="file://$PROJECT_DIR$" />
+      <envs />
+      <option name="emulateTerminal" value="true" />
+      <option name="channel" value="DEFAULT" />
+      <option name="requiredFeatures" value="true" />
+      <option name="allFeatures" value="false" />
+      <option name="withSudo" value="false" />
+      <option name="buildTarget" value="REMOTE" />
+      <option name="backtrace" value="SHORT" />
+      <option name="isRedirectInput" value="false" />
+      <option name="redirectInputPath" value="" />
+      <method v="2">
+        <option name="CARGO.BUILD_TASK_PROVIDER" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="Test blockchain_test::blockchain_test::test_start_with_genesis" type="CargoCommandRunConfiguration" factoryName="Cargo Command" temporary="true">
+      <option name="command" value="test --package architecture --bin architecture blockchain_test::blockchain_test::test_start_with_genesis -- --exact" />
       <option name="workingDirectory" value="file://$PROJECT_DIR$" />
       <envs />
       <option name="emulateTerminal" value="true" />
@@ -186,10 +209,11 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Cargo.Test blockchain_test::block_test::test_mine_block" />
-        <item itemvalue="Cargo.Test blockchain_test::block_test::test_genesis_block" />
-        <item itemvalue="Cargo.Test blockchain_test::block_test::test_block (1)" />
-        <item itemvalue="Cargo.Test blockchain_test::block_test::test_block" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_does_not_replace_chain_with_one_of_equal_or_less_length" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_replaces_chain_with_a_valid_chain" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_start_with_genesis" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_invalidates_a_corrupt_chain" />
+        <item itemvalue="Cargo.Test blockchain_test::blockchain_test::test_invalidates_a_chain_with_a_corrupt_genesis_block" />
       </list>
     </recent_temporary>
   </component>
