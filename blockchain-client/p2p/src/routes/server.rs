@@ -1,16 +1,17 @@
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use crate::Node;
 use warp::{http::Method, Filter, Reply};
 use crate::routes::routes;
 
 pub async fn run_server(node: Node) {
-    let node_arc = Arc::new(node);
+    let node_arc = Arc::new(Mutex::new(node));
     let routes = build_routes(node_arc.clone()).await;
-    let host_port: u16 = node_arc.host_port.parse().unwrap();
+    let host_port: u16 = node_arc.lock().unwrap().host_port.parse().unwrap();
     warp::serve(routes).run(([0, 0, 0, 0], host_port)).await;
 }
 
-async fn build_routes(node: Arc<Node>) -> impl Filter<Extract = impl Reply> + Clone {
+async fn build_routes(mut node: Arc<Mutex<Node>>) -> impl Filter<Extract = impl Reply> + Clone {
+    let node_filter = warp::any().map(move || node.clone());
     let cors = warp::cors()
         .allow_any_origin()
         .allow_header("content-type")
@@ -29,11 +30,22 @@ async fn build_routes(node: Arc<Node>) -> impl Filter<Extract = impl Reply> + Cl
     let blockchain = warp::get()
         .and(warp::path("blockchain"))
         .and(warp::path::end())
-        .and_then(move || routes::print_blockchain(node.clone()));
+        .and(node_filter.clone())
+        .and_then(routes::print_blockchain);
+
+    let mine_block = warp::post()
+        .and(warp::path("mine"))
+        .and(warp::path::end())
+        .and(node_filter.clone())
+        .and(warp::body::json())
+        .and_then(routes::mine_block);
+
 
 
 
     hello
         .or(blockchain)
+        .or(mine_block)
         .with(cors)
+        .with(warp::trace::request())
 }

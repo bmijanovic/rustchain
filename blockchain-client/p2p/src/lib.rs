@@ -1,7 +1,10 @@
-use architecture::blockchain::blockchain::Blockchain;
 mod routes;
+mod types;
+use architecture::blockchain::blockchain::Blockchain;
+use serde::{Deserialize, Serialize};
 
-#[derive(Clone)]
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Node{
     pub blockchain: Blockchain,
     pub host_port: String,

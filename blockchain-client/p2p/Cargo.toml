@@ -10,3 +10,4 @@ architecture = { path = "../architecture", version = "0.1.0" }
 warp = "0.3.7"
 tokio = { version = "1.38.0", features = ["full"] }
 http = "1.1.0"
+serde = { version = "1.0.203", features = ["derive"] }
