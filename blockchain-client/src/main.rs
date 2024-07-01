@@ -1,7 +1,8 @@
 use clap::{Arg, Command};
 use p2p::Node;
 
-fn main() {
+#[tokio::main]
+async fn main() {
     let matches = Command::new("Blockchain client")
         .arg(Arg::new("http_port")
             .long("http_port")
@@ -22,5 +23,5 @@ fn main() {
     }
 
     let node = Node::new(http_port.unwrap().to_string(), p2p_port.unwrap().to_string());
-    node.start();
+    node.start().await;
 }

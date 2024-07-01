@@ -1,7 +1,7 @@
 use std::sync::{Arc, Mutex};
 use crate::Node;
 use warp::{http::Method, Filter, Reply};
-use crate::routes::routes;
+use crate::http_server::routes;
 
 pub async fn run_server(node: Node) {
     let node_arc = Arc::new(Mutex::new(node));
@@ -10,7 +10,7 @@ pub async fn run_server(node: Node) {
     warp::serve(routes).run(([0, 0, 0, 0], host_port)).await;
 }
 
-async fn build_routes(mut node: Arc<Mutex<Node>>) -> impl Filter<Extract = impl Reply> + Clone {
+async fn build_routes(node: Arc<Mutex<Node>>) -> impl Filter<Extract = impl Reply> + Clone {
     let node_filter = warp::any().map(move || node.clone());
     let cors = warp::cors()
         .allow_any_origin()
@@ -39,9 +39,6 @@ async fn build_routes(mut node: Arc<Mutex<Node>>) -> impl Filter<Extract = impl 
         .and(node_filter.clone())
         .and(warp::body::json())
         .and_then(routes::mine_block);
-
-
-
 
     hello
         .or(blockchain)
