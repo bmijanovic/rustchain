@@ -4,9 +4,9 @@ use warp::{http::Method, Filter, Reply};
 use crate::http_server::routes;
 
 pub async fn run_server(node: Node) {
-    let node_arc = Arc::new(Mutex::new(node));
-    let routes = build_routes(node_arc.clone()).await;
-    let host_port: u16 = node_arc.lock().unwrap().host_port.parse().unwrap();
+    let node = Arc::new(Mutex::new(node));
+    let routes = build_routes(node.clone()).await;
+    let host_port: u16 = node.lock().unwrap().host_port.parse().unwrap();
     warp::serve(routes).run(([0, 0, 0, 0], host_port)).await;
 }
 
