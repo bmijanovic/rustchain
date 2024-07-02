@@ -7,6 +7,8 @@ use serde_json::json;
 
 use crate::utils::utils::crypto_hash;
 
+use crate::utils::config::{DIFFICULTY, MINE_RATE};
+
 #[derive(Debug, Deserialize, Clone)]
 pub struct Block {
     pub timestamp: DateTime<Utc>,
@@ -36,28 +38,47 @@ impl Block {
             hash: "genesis_hash".to_string(),
             data: "genesis_data".to_string(),
             nonce: 0,
-            difficulty: 0,
+            difficulty: DIFFICULTY,
         }
     }
 
     pub fn mine_block(last_block: &Block, data: String) -> Block {
-        let timestamp = Local::now().with_timezone(&Utc);
+        let mut timestamp = Local::now().with_timezone(&Utc);
         let last_hash = last_block.hash.clone();
-        // make hash from all the block properties and nonce
-        let hash = crypto_hash(&[
+        let mut nonce = 0;
+        let mut difficulty = last_block.difficulty;
+
+        // do-while loop
+        let mut hash = crypto_hash(&[
             json!(&timestamp),
             json!(&last_hash),
             json!(&data),
-            json!(&last_block.nonce),
-            json!(&last_block.difficulty)
+            json!(&nonce),
+            json!(&difficulty)
         ]);
+
+        while !hash.starts_with(&"0".repeat(difficulty as usize)) {
+            nonce += 1;
+            timestamp = Local::now().with_timezone(&Utc);
+            difficulty = Block::adjust_difficulty(last_block, timestamp);
+            hash = crypto_hash(&[
+                json!(&timestamp),
+                json!(&last_hash),
+                json!(&data),
+                json!(&nonce),
+                json!(&difficulty)
+            ]);
+        }
+
+
+
         Block {
             timestamp,
             last_hash,
             hash,
             data: data.clone(),
-            nonce: 0,
-            difficulty: 0,
+            nonce,
+            difficulty,
         }
 
     }
@@ -70,6 +91,19 @@ impl Block {
             json!(&block.nonce),
             json!(&block.difficulty)
         ])
+    }
+
+    pub(crate) fn adjust_difficulty(last_block: &Block, timestamp: DateTime<Utc>) -> u64 {
+        let difficulty = last_block.difficulty;
+        let time_diff = timestamp.timestamp() - last_block.timestamp.timestamp();
+        if difficulty <= 1 {
+            return 1;
+        }
+        return if time_diff < MINE_RATE as i64 {
+            difficulty + 1
+        } else {
+            difficulty - 1
+        }
     }
 }
 
