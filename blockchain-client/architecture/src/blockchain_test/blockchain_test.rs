@@ -1,5 +1,5 @@
 use crate::blockchain::blockchain::{Blockchain};
-
+use crate::utils::config::DIFFICULTY;
 
 #[test]
 fn test_start_with_genesis() {
@@ -9,7 +9,7 @@ fn test_start_with_genesis() {
     assert_eq!(blockchain.chain[0].last_hash, "genesis_last_hash");
     assert_eq!(blockchain.chain[0].hash, "genesis_hash");
     assert_eq!(blockchain.chain[0].nonce, 0);
-    assert_eq!(blockchain.chain[0].difficulty, 0);
+    assert_eq!(blockchain.chain[0].difficulty, DIFFICULTY);
 }
 
 #[test]
