@@ -2,6 +2,7 @@ use hex;
 use serde_json::Value;
 use sha2::{Digest, Sha256};
 
+
 pub(crate) fn crypto_hash(inputs: &[Value]) -> String {
     let mut hasher = Sha256::new();
     let mut serialized_inputs: Vec<String> = inputs.iter()
@@ -13,3 +14,5 @@ pub(crate) fn crypto_hash(inputs: &[Value]) -> String {
     let hash = hasher.finalize();
     hex::encode(hash)
 }
+
+
