@@ -1,5 +1,8 @@
+use serde::ser::SerializeStruct;
+use serde::{Deserialize, Serialize};
 use crate::blockchain::block::Block;
 
+#[derive(Clone, Debug, Deserialize)]
 pub struct Blockchain {
     pub chain: Vec<Block>,
 }
@@ -49,4 +52,11 @@ impl Blockchain {
     }
 }
 
+impl Serialize for Blockchain {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error> where S: serde::Serializer {
+        let mut state = serializer.serialize_struct("Blockchain", 1)?;
+        state.serialize_field("chain", &self.chain)?;
+        state.end()
+    }
+}
 

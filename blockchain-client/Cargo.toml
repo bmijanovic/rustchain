@@ -1,4 +1,4 @@
-workspace = { members = ["architecture"] }
+workspace = { members = ["architecture", "handle-errors", "p2p"] }
 [package]
 name = "blockchain-client"
 version = "0.1.0"
@@ -17,3 +17,5 @@ crypto = "0.5.1"
 sha2 = "0.11.0-pre.3"
 hex-literal = "0.4.1"
 hex = "0.4.3"
+clap = "4.5.7"
+p2p = { path = "./p2p", version = "0.1.0" }
