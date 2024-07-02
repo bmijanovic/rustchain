@@ -4,9 +4,12 @@ use std::collections::hash_map::DefaultHasher;
 use std::error::Error;
 use std::hash::{Hash, Hasher};
 use std::time::Duration;
+use futures::SinkExt;
 use libp2p::gossipsub::IdentTopic;
 use tokio::{select};
+use tokio::sync::mpsc::{Receiver, Sender};
 use tracing_subscriber::EnvFilter;
+use architecture::blockchain::blockchain::Blockchain;
 use crate::Node;
 
 // We create a custom network behaviour that combines Gossipsub and Mdns.
@@ -19,8 +22,8 @@ pub(crate) struct MyBehaviour {
 
 
 
-pub async fn subscribe(mut node: Node) -> Result<(), Box<dyn Error>> {
-    let mut swarm = node.swarm.lock().unwrap();
+pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, mut event_sender: Sender<String>) -> Result<(), Box<dyn Error>> {
+    let mut swarm = node.swarm.lock().await;
 
     let blockchain_topic = IdentTopic::new("blockchain");
     swarm.behaviour_mut().gossipsub.subscribe(&blockchain_topic)?;
@@ -32,27 +35,26 @@ pub async fn subscribe(mut node: Node) -> Result<(), Box<dyn Error>> {
     swarm.behaviour_mut().gossipsub.subscribe(&transaction_pool_clear_topic)?;
 
     swarm.listen_on("/ip4/0.0.0.0/udp/0/quic-v1".parse()?)?;
-    swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
+    swarm.listen_on("/ip4/127.0.0.1/tcp/0".parse()?)?;
 
     drop(swarm);
 
     loop {
-        let mut swarm = node.swarm.lock().unwrap();
+        let mut swarm = node.swarm.lock().await;
         select! {
             event = swarm.select_next_some() => {
-                handle_event(&mut swarm, event).await;
+                handle_event(&mut swarm, event, &node.blockchain).await;
             }
-            _ = tokio::task::yield_now() => {}
+            Some(data) = event_receiver.recv() => {
+                // println!("Received message from event receiver: {data}");
+                process_input(&mut swarm, &blockchain_topic, &transaction_pool_topic, &transaction_pool_clear_topic, data);
+            }
         }
         drop(swarm);
     }
-
-
-
-    Ok(())
 }
 
-fn send_message(swarm: &mut Swarm<MyBehaviour>, topic: &IdentTopic, message: String) {
+pub(crate) fn send_message(swarm: &mut Swarm<MyBehaviour>, topic: &IdentTopic, message: String) {
     if let Err(e) = swarm.behaviour_mut().gossipsub.publish(topic.clone(), message.as_bytes()) {
         println!("Publish error: {e:?}");
     }
@@ -77,12 +79,13 @@ fn process_input(swarm: &mut Swarm<MyBehaviour>, blockchain_topic: &IdentTopic, 
     }
 }
 
-async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehaviourEvent>) {
+async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehaviourEvent>, blockchain: &Blockchain) {
     match event {
         SwarmEvent::Behaviour(MyBehaviourEvent::Mdns(mdns::Event::Discovered(list))) => {
             for (peer_id, _multiaddr) in list {
                 println!("mDNS discovered a new peer: {peer_id}");
                 swarm.behaviour_mut().gossipsub.add_explicit_peer(&peer_id);
+
             }
         },
         SwarmEvent::Behaviour(MyBehaviourEvent::Mdns(mdns::Event::Expired(list))) => {

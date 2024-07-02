@@ -1,4 +1,5 @@
-use std::sync::{Arc, Mutex};
+use std::sync::Arc;
+use tokio::sync::{Mutex};
 use crate::Node;
 use warp::{http::Method, Filter, Reply};
 use crate::http_server::routes;
@@ -6,7 +7,7 @@ use crate::http_server::routes;
 pub async fn run_server(node: Node) {
     let node = Arc::new(Mutex::new(node));
     let routes = build_routes(node.clone()).await;
-    let host_port: u16 = node.lock().unwrap().host_port.parse().unwrap();
+    let host_port: u16 = node.lock().await.host_port.parse().unwrap();
     warp::serve(routes).run(([0, 0, 0, 0], host_port)).await;
 }
 
