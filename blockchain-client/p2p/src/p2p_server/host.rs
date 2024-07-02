@@ -47,7 +47,6 @@ pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, eve
                 handle_event(&mut swarm, event, &mut node).await;
             }
             Some(data) = event_receiver.recv() => {
-                println!("Received data: {data}");
                 process_input(&mut swarm, &blockchain_topic, &transaction_pool_topic, &transaction_pool_clear_topic, data);
             }
         }
@@ -85,9 +84,8 @@ async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehavi
             for (peer_id, _multiaddr) in list {
                 println!("mDNS discovered a new peer: {peer_id}");
                 swarm.behaviour_mut().gossipsub.add_explicit_peer(&peer_id);
+                send_message(swarm, &IdentTopic::new("blockchain"), serde_json::to_string(&node.blockchain.read().await.chain).unwrap());
             }
-
-            send_message(swarm, &IdentTopic::new("blockchain"), serde_json::to_string(&node.blockchain.read().await.chain).unwrap());
 
 
         },
