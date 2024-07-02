@@ -78,19 +78,17 @@ impl fmt::Display for Block {
         let last_hash = &self.last_hash[..10];
         let hash = &self.hash[..10];
         write!(f, "Block - \n    Timestamp: {}, \n    Last Hash: {}, \n    Hash: {}, \n    Data: {}, \n    Nonce: {}, \n    Difficulty: {}"
-               , self.timestamp, last_hash, hash, self.data, self.nonce, self.difficulty)
+               , self.timestamp.to_rfc2822(), last_hash, hash, self.data, self.nonce, self.difficulty)
     }
 }
 
 impl Serialize for Block {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
         where S: serde::Serializer {
-        let last_hash = "-----";
-        let hash = &self.hash[..10];
         let mut state = serializer.serialize_struct("Block", 6)?;
-        state.serialize_field("timestamp", &self.timestamp.to_rfc2822())?;
-        state.serialize_field("last_hash", last_hash)?;
-        state.serialize_field("hash", hash)?;
+        state.serialize_field("timestamp", &self.timestamp)?;
+        state.serialize_field("last_hash", &self.last_hash)?;
+        state.serialize_field("hash", &self.hash)?;
         state.serialize_field("data", &self.data)?;
         state.serialize_field("nonce", &self.nonce)?;
         state.serialize_field("difficulty", &self.difficulty)?;

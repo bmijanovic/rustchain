@@ -3,12 +3,15 @@ use libp2p::{gossipsub, mdns, noise, PeerId, Swarm, swarm::NetworkBehaviour, swa
 use std::collections::hash_map::DefaultHasher;
 use std::error::Error;
 use std::hash::{Hash, Hasher};
+use std::sync::Arc;
 use std::time::Duration;
 use futures::SinkExt;
 use libp2p::gossipsub::IdentTopic;
 use tokio::{select};
 use tokio::sync::mpsc::{Receiver, Sender};
+use tokio::sync::Mutex;
 use tracing_subscriber::EnvFilter;
+use architecture::blockchain::block::Block;
 use architecture::blockchain::blockchain::Blockchain;
 use crate::Node;
 
@@ -22,8 +25,7 @@ pub(crate) struct MyBehaviour {
 
 
 
-pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, mut event_sender: Sender<String>) -> Result<(), Box<dyn Error>> {
-    let mut swarm = node.swarm.lock().await;
+pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, event_sender: Sender<String>, mut swarm: Swarm<MyBehaviour>) -> Result<(), Box<dyn Error>> {
 
     let blockchain_topic = IdentTopic::new("blockchain");
     swarm.behaviour_mut().gossipsub.subscribe(&blockchain_topic)?;
@@ -35,22 +37,20 @@ pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, mut
     swarm.behaviour_mut().gossipsub.subscribe(&transaction_pool_clear_topic)?;
 
     swarm.listen_on("/ip4/0.0.0.0/udp/0/quic-v1".parse()?)?;
-    swarm.listen_on("/ip4/127.0.0.1/tcp/0".parse()?)?;
+    swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
 
-    drop(swarm);
 
     loop {
-        let mut swarm = node.swarm.lock().await;
+
         select! {
             event = swarm.select_next_some() => {
-                handle_event(&mut swarm, event, &node.blockchain).await;
+                handle_event(&mut swarm, event, &mut node).await;
             }
             Some(data) = event_receiver.recv() => {
-                // println!("Received message from event receiver: {data}");
+                println!("Received data: {data}");
                 process_input(&mut swarm, &blockchain_topic, &transaction_pool_topic, &transaction_pool_clear_topic, data);
             }
         }
-        drop(swarm);
     }
 }
 
@@ -79,14 +79,17 @@ fn process_input(swarm: &mut Swarm<MyBehaviour>, blockchain_topic: &IdentTopic, 
     }
 }
 
-async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehaviourEvent>, blockchain: &Blockchain) {
+async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehaviourEvent>, node: &mut Node) {
     match event {
         SwarmEvent::Behaviour(MyBehaviourEvent::Mdns(mdns::Event::Discovered(list))) => {
             for (peer_id, _multiaddr) in list {
                 println!("mDNS discovered a new peer: {peer_id}");
                 swarm.behaviour_mut().gossipsub.add_explicit_peer(&peer_id);
-
             }
+
+            send_message(swarm, &IdentTopic::new("blockchain"), serde_json::to_string(&node.blockchain.read().await.chain).unwrap());
+
+
         },
         SwarmEvent::Behaviour(MyBehaviourEvent::Mdns(mdns::Event::Expired(list))) => {
             for (peer_id, _multiaddr) in list {
@@ -99,7 +102,7 @@ async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehavi
                                                               message_id: id,
                                                               message,
                                                           })) => {
-            match_topic_message(&message.topic.as_str(), &String::from_utf8_lossy(&message.data), id, &peer_id);
+            match_topic_message(&message.topic.as_str(), &String::from_utf8_lossy(&message.data), id, &peer_id, node).await;
         },
         SwarmEvent::NewListenAddr { address, .. } => {
             println!("Local node is listening on {address}");
@@ -108,19 +111,22 @@ async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehavi
     }
 }
 
-fn match_topic_message(topic: &str, msg: &str, id: gossipsub::MessageId, peer_id: &PeerId) {
+async fn match_topic_message(topic: &str, msg: &str, id: gossipsub::MessageId, peer_id: &PeerId, node: &mut Node) {
     match topic {
         "blockchain" => {
             println!("Received blockchain message: '{msg}' with id: {id} from peer: {peer_id}");
-            // Add additional processing for blockchain messages if needed
+            let new_chain = serde_json::from_str::<Vec<Block>>(&msg).unwrap();
+            for block in &new_chain {
+                println!("{block}");
+            }
+            node.blockchain.write().await.replace_chain(new_chain);
+
         },
         "transaction_pool" => {
             println!("Received transaction_pool message: '{msg}' with id: {id} from peer: {peer_id}");
-            // Add additional processing for transaction_pool messages if needed
         },
         "transaction_pool_clear" => {
             println!("Received transaction_pool_clear message: '{msg}' with id: {id} from peer: {peer_id}");
-            // Add additional processing for transaction_pool_clear messages if needed
         },
         _ => {
             println!("Received message on unknown topic '{topic}': '{msg}' with id: {id} from peer: {peer_id}");

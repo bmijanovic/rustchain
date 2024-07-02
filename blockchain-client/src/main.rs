@@ -23,5 +23,5 @@ async fn main() {
     }
 
     let node = Node::new(http_port.unwrap().to_string(), p2p_port.unwrap().to_string());
-    node.start().await;
+    node.start().await.expect("Cannot start node");
 }
