@@ -45,3 +45,9 @@ pub async fn post_transaction(node: Arc<Mutex<Node>>, data: TransactionData) -> 
         .expect("Failed to send message to event sender");
     Ok(warp::reply::with_status(warp::reply::json(&transaction), StatusCode::CREATED))
 }
+
+pub async fn get_public_key(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
+    let node = node.lock().await;
+    let wallet = node.wallet.read().await.clone();
+    Ok(warp::reply::with_status(warp::reply::json(&wallet.public_key), StatusCode::OK))
+}
