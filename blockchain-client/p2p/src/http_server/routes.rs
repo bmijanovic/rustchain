@@ -37,6 +37,11 @@ pub async fn post_transaction(node: Arc<Mutex<Node>>, data: TransactionData) -> 
     let mut node = node.lock().await;
     let wallet = node.wallet.write().await.clone();;
     let transaction = wallet.create_transaction(data.recipient, data.amount,
-                                                &mut node.transaction_pool.write().await.deref_mut());
+                                                &mut node.transaction_pool.write().await.deref_mut()).unwrap();
+
+    let mut transaction_json = serde_json::to_string(&transaction).unwrap();
+    transaction_json = "transaction_pool: ".to_string() + &transaction_json;
+    node.event_sender.as_ref().unwrap().send(transaction_json).await
+        .expect("Failed to send message to event sender");
     Ok(warp::reply::with_status(warp::reply::json(&transaction), StatusCode::CREATED))
 }

@@ -1,9 +1,11 @@
+use std::fmt;
 use chrono::{DateTime, Local, Utc};
 use ecdsa::VerifyingKey;
 use k256::Secp256k1;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use uuid::Uuid;
+use crate::blockchain::block::Block;
 use crate::wallet::wallet::Wallet;
 use crate::utils::utils::crypto_hash;
 
@@ -96,5 +98,31 @@ impl Transaction {
     }
 
 }
+
+
+impl fmt::Display for Transaction {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "Transaction: \n\tid: {}\n\tinput: {:?}\n\toutputs: {:?}\n", self.id.0, self.input, self.outputs)
+    }
+}
+
+impl fmt::Display for TransactionId {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.0)
+    }
+}
+
+impl fmt::Display for TransactionInput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "TransactionInput: \n\ttimestamp: {}\n\tamount: {}\n\taddress: {}\n\tsignature: {}\n", self.timestamp, self.amount, self.address, self.signature)
+    }
+}
+
+impl fmt::Display for TransactionOutput {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "TransactionOutput: \n\tamount: {}\n\taddress: {}\n", self.amount, self.address)
+    }
+}
+
 
 
