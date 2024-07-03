@@ -2,6 +2,7 @@ use futures::stream::StreamExt;
 use libp2p::{gossipsub, mdns, noise, PeerId, Swarm, swarm::NetworkBehaviour, swarm::SwarmEvent, SwarmBuilder, tcp, yamux};
 use std::collections::hash_map::DefaultHasher;
 use std::error::Error;
+use std::fmt::Pointer;
 use std::hash::{Hash, Hasher};
 use std::sync::Arc;
 use std::time::Duration;
@@ -11,8 +12,10 @@ use tokio::{select};
 use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::Mutex;
 use tracing_subscriber::EnvFilter;
+use warp::reply::Json;
 use architecture::blockchain::block::Block;
 use architecture::blockchain::blockchain::Blockchain;
+use architecture::wallet::transaction::Transaction;
 use crate::Node;
 
 // We create a custom network behaviour that combines Gossipsub and Mdns.
@@ -122,6 +125,9 @@ async fn match_topic_message(topic: &str, msg: &str, id: gossipsub::MessageId, p
         },
         "transaction_pool" => {
             println!("Received transaction_pool message: '{msg}' with id: {id} from peer: {peer_id}");
+            let transaction = serde_json::from_str::<Transaction>(&msg).unwrap();
+            println!("{transaction}");
+            node.transaction_pool.write().await.update_or_add_transaction(transaction);
         },
         "transaction_pool_clear" => {
             println!("Received transaction_pool_clear message: '{msg}' with id: {id} from peer: {peer_id}");

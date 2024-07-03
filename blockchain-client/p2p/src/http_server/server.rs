@@ -41,9 +41,31 @@ async fn build_routes(node: Arc<Mutex<Node>>) -> impl Filter<Extract = impl Repl
         .and(warp::body::json())
         .and_then(routes::mine_block);
 
+    let print_transactions = warp::get()
+        .and(warp::path("transactions"))
+        .and(warp::path::end())
+        .and(node_filter.clone())
+        .and_then(routes::print_transactions);
+
+    let post_transaction = warp::post()
+        .and(warp::path("transaction"))
+        .and(warp::path::end())
+        .and(node_filter.clone())
+        .and(warp::body::json())
+        .and_then(routes::post_transaction);
+
+    let public_key = warp::get()
+        .and(warp::path("public_key"))
+        .and(warp::path::end())
+        .and(node_filter.clone())
+        .and_then(routes::get_public_key);
+
     hello
         .or(blockchain)
         .or(mine_block)
+        .or(print_transactions)
+        .or(post_transaction)
+        .or(public_key)
         .with(cors)
         .with(warp::trace::request())
 }

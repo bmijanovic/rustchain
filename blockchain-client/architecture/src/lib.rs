@@ -1,6 +1,6 @@
 pub mod blockchain;
 mod blockchain_test;
-mod wallet;
+pub mod wallet;
 mod utils;
 mod wallet_test;
 
