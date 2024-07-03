@@ -9,6 +9,7 @@ use architecture::wallet::wallet::Wallet;
 use architecture::wallet::transaction_pool::TransactionPool;
 use serde::{Deserialize, Serialize};
 use tokio::sync::{mpsc, Mutex, RwLock};
+use architecture::wallet::transaction::Transaction;
 use crate::http_server::server::run_server;
 use crate::p2p_server::host::{subscribe, build_swarm};
 #[derive(Clone)]
@@ -41,6 +42,28 @@ impl Node {
         let p2p = subscribe(self.clone(), event_receiver, event_sender, swarm);
         let http = run_server(self.clone());
         tokio::join!(p2p, http);
+        Ok(())
+    }
+
+    pub async fn mine(mut self) -> Result<(), Box<dyn std::error::Error>> {
+        let mut valid_transactions = self.transaction_pool.read().await.valid_transactions();
+
+        let wallet = self.wallet.read().await.clone();
+        valid_transactions.push(Transaction::reward_transaction(&wallet, &Wallet::blockchain_wallet()));
+
+        let mut blockchain = self.blockchain.write().await;
+        blockchain.add_block(valid_transactions);
+
+        let mut mew_chain_json = serde_json::to_string(&blockchain.chain).unwrap();
+        mew_chain_json = "blockchain: ".to_string() + &mew_chain_json;
+        self.event_sender.as_ref().unwrap().send(mew_chain_json).await
+            .expect("Failed to send message to event sender");
+
+        self.transaction_pool.write().await.transactions.clear();
+        // broadcast to everyone to clear their transaction pools
+        self.event_sender.as_ref().unwrap().send("transaction_pool_clear: clear".to_string()).await
+            .expect("Failed to send message to event sender");
+
         Ok(())
     }
 }

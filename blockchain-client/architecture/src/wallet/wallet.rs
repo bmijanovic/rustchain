@@ -66,5 +66,12 @@ impl Wallet {
 
         Ok(updated_transaction)
     }
+
+    pub fn blockchain_wallet() -> Wallet {
+        let mut blockchain_wallet = Wallet::new();
+        blockchain_wallet.public_key = "blockchain_wallet".to_string();
+        blockchain_wallet
+    }
+
 }
 

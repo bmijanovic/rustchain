@@ -38,7 +38,6 @@ async fn build_routes(node: Arc<Mutex<Node>>) -> impl Filter<Extract = impl Repl
         .and(warp::path("mine"))
         .and(warp::path::end())
         .and(node_filter.clone())
-        .and(warp::body::json())
         .and_then(routes::mine_block);
 
     let print_transactions = warp::get()

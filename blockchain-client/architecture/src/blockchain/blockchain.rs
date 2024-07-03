@@ -1,6 +1,7 @@
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Serialize};
 use crate::blockchain::block::Block;
+use crate::wallet::transaction::Transaction;
 
 #[derive(Clone, Debug, Deserialize)]
 pub struct Blockchain {
@@ -14,7 +15,7 @@ impl Blockchain {
         }
     }
     
-    pub fn add_block(&mut self, data: String) -> Block {
+    pub fn add_block(&mut self, data: Vec<Transaction>) -> Block {
         let last_block = self.chain.last().unwrap();
         let new_block = Block::mine_block(&last_block, data);
         self.chain.push(new_block.clone());
