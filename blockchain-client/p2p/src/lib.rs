@@ -27,7 +27,9 @@ impl Node {
             blockchain: Arc::new(RwLock::new(Blockchain::new())),
             host_port,
             p2p_port,
-            event_sender: None
+            event_sender: None,
+            wallet: Arc::new(RwLock::new(Wallet::new())),
+            transaction_pool: Arc::new(RwLock::new(TransactionPool::new()))
         }
     }
 

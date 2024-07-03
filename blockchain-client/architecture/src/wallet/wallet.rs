@@ -58,6 +58,7 @@ impl Wallet {
         let mut updated_transaction : Transaction;
         if let Some(mut existing_transaction) = transaction {
             updated_transaction = existing_transaction.update(self, recipient, amount).unwrap();
+            transaction_pool.update_or_add_transaction(updated_transaction.clone());
         } else {
             updated_transaction = Transaction::new(self, recipient, amount);
             transaction_pool.update_or_add_transaction(updated_transaction.clone());

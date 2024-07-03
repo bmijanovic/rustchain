@@ -92,7 +92,7 @@ impl Transaction {
         sender_output.amount = sender_output.amount - amount;
         self.outputs.push(TransactionOutput::new(amount, recipient));
         Transaction::sign(self, sender_wallet);
-        Ok(self.clone())
+        Ok(self.to_owned())
     }
 
 }
