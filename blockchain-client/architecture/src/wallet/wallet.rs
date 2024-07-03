@@ -4,6 +4,7 @@ use ecdsa::{SigningKey, VerifyingKey};
 use ecdsa::signature::{Signer, Verifier};
 use k256::{Secp256k1};
 use k256::{ecdsa::Signature as K256Signature};
+use crate::blockchain::blockchain::Blockchain;
 use crate::wallet::transaction::Transaction;
 use crate::wallet::transaction_pool::TransactionPool;
 
@@ -49,7 +50,8 @@ impl Wallet {
         address.verify(data.as_bytes(), &signature).is_ok()
     }
 
-    pub fn create_transaction(&self, recipient: String, amount: u64, mut transaction_pool: &mut TransactionPool) -> Result<Transaction, &'static str> {
+    pub fn create_transaction(&mut self, recipient: String, amount: u64, mut transaction_pool: &mut TransactionPool, blockchain: &Blockchain) -> Result<Transaction, &'static str> {
+        self.balance = self.calculate_balance(blockchain);
         if amount > self.balance {
             return Err("Amount exceeds balance");
         }
@@ -71,6 +73,49 @@ impl Wallet {
         let mut blockchain_wallet = Wallet::new();
         blockchain_wallet.public_key = "blockchain_wallet".to_string();
         blockchain_wallet
+    }
+
+    pub fn calculate_balance(&self, blockchain: &Blockchain) -> u64 {
+        let mut balance = self.balance;
+        let mut transactions: Vec<Transaction> = Vec::new();
+
+        blockchain.chain.iter().for_each(|block| {
+            block.data.iter().for_each(|transaction| {
+                transactions.push(transaction.clone());
+            });
+        });
+
+        let wallet_input_transactions = transactions.iter().filter(|transaction|
+            transaction.input.is_some() && transaction.input.as_ref().unwrap().address == self.public_key
+        ).collect::<Vec<&Transaction>>();
+
+        println!("transactions: {:?}", transactions);
+
+        let mut start_time = 0;
+        if wallet_input_transactions.len() > 0 {
+            let recent_input_transaction = wallet_input_transactions.iter()
+                .max_by_key(|transaction|
+                    transaction.input.as_ref().unwrap().timestamp.timestamp()
+                );
+            start_time = recent_input_transaction.unwrap().input.as_ref().unwrap().timestamp.timestamp();
+            balance = recent_input_transaction.unwrap().outputs.iter().find(|output|
+                output.address == self.public_key
+            ).unwrap().amount;
+        }
+
+        transactions.iter().for_each(|transaction| {
+            if transaction.input.as_ref().unwrap().timestamp.timestamp() > start_time {
+                transaction.outputs.iter().for_each(|output| {
+                    if output.address == self.public_key {
+                        balance += output.amount;
+                    }
+                });
+            }
+        });
+
+        balance
+
+
     }
 
 }
