@@ -1,3 +1,4 @@
+use crate::utils::config::MINING_REWARD;
 use crate::wallet::transaction::Transaction;
 use crate::wallet::wallet::Wallet;
 
@@ -73,4 +74,13 @@ fn test_updates_the_transaction() {
     assert_eq!(transaction.outputs[1].address, recipient);
     assert_eq!(transaction.outputs[2].amount, new_amount);
     assert_eq!(transaction.outputs[2].address, new_recipient);
+}
+
+#[test]
+fn test_reward_transaction() {
+    let miner_wallet = Wallet::blockchain_wallet();
+    let transaction = Transaction::reward_transaction(&miner_wallet, &Wallet::blockchain_wallet());
+    assert_eq!(transaction.outputs.len(), 1);
+    assert_eq!(transaction.outputs[0].amount, MINING_REWARD);
+    assert_eq!(transaction.outputs[0].address, miner_wallet.public_key);
 }

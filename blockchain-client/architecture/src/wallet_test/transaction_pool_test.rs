@@ -23,3 +23,4 @@ fn test_update_transaction_in_the_pool() {
     assert_eq!(transaction_pool.transactions.len(), 1);
     assert_eq!(transaction_pool.transactions[0], transaction);
 }
+

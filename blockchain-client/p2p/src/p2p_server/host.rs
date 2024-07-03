@@ -131,6 +131,7 @@ async fn match_topic_message(topic: &str, msg: &str, id: gossipsub::MessageId, p
         },
         "transaction_pool_clear" => {
             println!("Received transaction_pool_clear message: '{msg}' with id: {id} from peer: {peer_id}");
+            node.transaction_pool.write().await.transactions.clear();
         },
         _ => {
             println!("Received message on unknown topic '{topic}': '{msg}' with id: {id} from peer: {peer_id}");

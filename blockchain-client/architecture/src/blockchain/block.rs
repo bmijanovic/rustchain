@@ -8,19 +8,20 @@ use serde_json::json;
 use crate::utils::utils::crypto_hash;
 
 use crate::utils::config::{DIFFICULTY, MINE_RATE};
+use crate::wallet::transaction::Transaction;
 
 #[derive(Debug, Deserialize, Clone)]
 pub struct Block {
     pub timestamp: DateTime<Utc>,
     pub last_hash: String,
     pub hash: String,
-    pub data: String,
+    pub data: Vec<Transaction>,
     pub nonce: u64,
     pub difficulty: u64,
 }
 
 impl Block {
-    pub fn new(timestamp: DateTime<Utc>, last_hash: String, hash: String, data: String, nonce: u64, difficulty: u64) -> Block {
+    pub fn new(timestamp: DateTime<Utc>, last_hash: String, hash: String, data: Vec<Transaction>, nonce: u64, difficulty: u64) -> Block {
         Block {
             timestamp,
             last_hash,
@@ -36,13 +37,13 @@ impl Block {
             timestamp: Local::now().with_timezone(&Utc),
             last_hash: "genesis_last_hash".to_string(),
             hash: "genesis_hash".to_string(),
-            data: "genesis_data".to_string(),
+            data: Vec::new(),
             nonce: 0,
             difficulty: DIFFICULTY,
         }
     }
 
-    pub fn mine_block(last_block: &Block, data: String) -> Block {
+    pub fn mine_block(last_block: &Block, data: Vec<Transaction>) -> Block {
         let mut timestamp = Local::now().with_timezone(&Utc);
         let last_hash = last_block.hash.clone();
         let mut nonce = 0;
@@ -111,7 +112,7 @@ impl fmt::Display for Block {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         let last_hash = &self.last_hash[..10];
         let hash = &self.hash[..10];
-        write!(f, "Block - \n    Timestamp: {}, \n    Last Hash: {}, \n    Hash: {}, \n    Data: {}, \n    Nonce: {}, \n    Difficulty: {}"
+        write!(f, "Block - \n    Timestamp: {}, \n    Last Hash: {}, \n    Hash: {}, \n    Data: {:?}, \n    Nonce: {}, \n    Difficulty: {}"
                , self.timestamp.to_rfc2822(), last_hash, hash, self.data, self.nonce, self.difficulty)
     }
 }

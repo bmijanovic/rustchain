@@ -24,4 +24,19 @@ impl TransactionPool {
     pub fn existing_transaction(&self, address: &str) -> Option<Transaction> {
         self.transactions.iter().find(|t| t.input.as_ref().unwrap().address == address).cloned()
     }
+
+    pub fn valid_transactions(&self) -> Vec<Transaction> {
+        self.transactions.iter().filter(|t| {
+            // reduce output amount to total amount
+            let total_output_amount: u64 = t.outputs.iter().map(|o| o.amount).sum();
+            if total_output_amount != t.input.as_ref().unwrap().amount {
+                return false;
+            }
+            // verify signature
+            if !t.verify() {
+                return false;
+            }
+            true
+        }).cloned().collect()
+    }
 }

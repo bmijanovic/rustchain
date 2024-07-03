@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use serde_json::json;
 use uuid::Uuid;
 use crate::blockchain::block::Block;
+use crate::utils::config::MINING_REWARD;
 use crate::wallet::wallet::Wallet;
 use crate::utils::utils::crypto_hash;
 
@@ -55,16 +56,9 @@ impl Transaction {
         }
         let sender_transaction_output = TransactionOutput::new(sender_wallet.balance - amount, sender_wallet.public_key.clone());
         let reciever_transaction_output = TransactionOutput::new(amount, recipient);
-        let mut transaction = Transaction {
-            id: TransactionId(Uuid::new_v4()),
-            input: None,
-            outputs: vec![sender_transaction_output, reciever_transaction_output],
-        };
+        let outputs = vec![sender_transaction_output, reciever_transaction_output];
 
-        Transaction::sign(&mut transaction, sender_wallet);
-
-        transaction
-
+        Transaction::transaction_with_outputs(sender_wallet, outputs)
 
     }
 
@@ -95,6 +89,20 @@ impl Transaction {
         self.outputs.push(TransactionOutput::new(amount, recipient));
         Transaction::sign(self, sender_wallet);
         Ok(self.to_owned())
+    }
+
+    pub fn transaction_with_outputs(sender_wallet: &Wallet, outputs: Vec<TransactionOutput>) -> Transaction {
+        let mut transaction = Transaction {
+            id: TransactionId(Uuid::new_v4()),
+            input: None,
+            outputs,
+        };
+        Transaction::sign(&mut transaction, sender_wallet);
+        transaction
+    }
+
+    pub fn reward_transaction(miner_wallet: &Wallet, blockchain_wallet: &Wallet) -> Transaction {
+        Transaction::transaction_with_outputs(blockchain_wallet, vec![TransactionOutput::new(MINING_REWARD, miner_wallet.public_key.clone())])
     }
 
 }

@@ -17,14 +17,11 @@ pub async fn print_blockchain(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply
     Ok(warp::reply::with_status(warp::reply::json(&blockchain), StatusCode::OK))
 }
 
-pub async fn mine_block(node: Arc<Mutex<Node>>, data: BlockchainData) -> Result<impl warp::Reply, warp::Rejection> {
+
+pub async fn mine_block(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
     let mut node = node.lock().await;
-    let new_block = node.blockchain.write().await.add_block(data.data);
-    let mut mew_chain_json = serde_json::to_string(&node.blockchain.read().await.chain).unwrap();
-    mew_chain_json = "blockchain: ".to_string() + &mew_chain_json;
-    node.event_sender.as_ref().unwrap().send(mew_chain_json).await
-        .expect("Failed to send message to event sender");
-    Ok(warp::reply::with_status(warp::reply::json(&new_block), StatusCode::CREATED))
+    node.clone().mine().await.expect("Failed to mine block");
+    Ok(warp::reply::json(&"mined"))
 }
 
 pub async fn print_transactions(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
@@ -35,9 +32,10 @@ pub async fn print_transactions(node: Arc<Mutex<Node>>) -> Result<impl warp::Rep
 
 pub async fn post_transaction(node: Arc<Mutex<Node>>, data: TransactionData) -> Result<impl warp::Reply, warp::Rejection> {
     let mut node = node.lock().await;
-    let wallet = node.wallet.write().await.clone();;
+    let mut wallet = node.wallet.write().await.clone();
+    let blockchain = node.blockchain.read().await.clone();
     let transaction = wallet.create_transaction(data.recipient, data.amount,
-                                                &mut node.transaction_pool.write().await.deref_mut()).unwrap();
+                                                &mut node.transaction_pool.write().await.deref_mut(), &blockchain).unwrap();
 
     let mut transaction_json = serde_json::to_string(&transaction).unwrap();
     transaction_json = "transaction_pool: ".to_string() + &transaction_json;
@@ -50,4 +48,12 @@ pub async fn get_public_key(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, 
     let node = node.lock().await;
     let wallet = node.wallet.read().await.clone();
     Ok(warp::reply::with_status(warp::reply::json(&wallet.public_key), StatusCode::OK))
+}
+
+pub async fn get_wallet_balance(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
+    let node = node.lock().await;
+    let wallet = node.wallet.read().await.clone();
+    let blockchain = node.blockchain.read().await.clone();
+    let balance = wallet.calculate_balance(&blockchain);
+    Ok(warp::reply::with_status(warp::reply::json(&balance), StatusCode::OK))
 }
