@@ -50,14 +50,14 @@ impl Wallet {
         address.verify(data.as_bytes(), &signature).is_ok()
     }
 
-    pub fn create_transaction(&mut self, recipient: String, amount: u64, mut transaction_pool: &mut TransactionPool, blockchain: &Blockchain) -> Result<Transaction, &'static str> {
+    pub fn create_transaction(&mut self, recipient: String, amount: u64, transaction_pool: &mut TransactionPool, blockchain: &Blockchain) -> Result<Transaction, &'static str> {
         self.balance = self.calculate_balance(blockchain);
         if amount > self.balance {
             return Err("Amount exceeds balance");
         }
-        let mut transaction = transaction_pool.existing_transaction(&self.public_key);
+        let transaction = transaction_pool.existing_transaction(&self.public_key);
 
-        let mut updated_transaction : Transaction;
+        let updated_transaction : Transaction;
         if let Some(mut existing_transaction) = transaction {
             updated_transaction = existing_transaction.update(self, recipient, amount).unwrap();
             transaction_pool.update_or_add_transaction(updated_transaction.clone());

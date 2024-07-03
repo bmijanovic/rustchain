@@ -3,12 +3,10 @@ mod http_server;
 mod p2p_server;
 
 use std::sync::Arc;
-use libp2p::swarm::{NetworkBehaviour};
 use architecture::blockchain::blockchain::Blockchain;
 use architecture::wallet::wallet::Wallet;
 use architecture::wallet::transaction_pool::TransactionPool;
-use serde::{Deserialize, Serialize};
-use tokio::sync::{mpsc, Mutex, RwLock};
+use tokio::sync::{mpsc, RwLock};
 use architecture::wallet::transaction::Transaction;
 use crate::http_server::server::run_server;
 use crate::p2p_server::host::{subscribe, build_swarm};
@@ -39,13 +37,13 @@ impl Node {
         let (event_sender, event_receiver) = mpsc::channel(100);
         self.event_sender = Some(event_sender.clone());
         let swarm = build_swarm()?;
-        let p2p = subscribe(self.clone(), event_receiver, event_sender, swarm);
+        let p2p = subscribe(self.clone(), event_receiver, swarm);
         let http = run_server(self.clone());
-        tokio::join!(p2p, http);
+        _ = tokio::join!(p2p, http);
         Ok(())
     }
 
-    pub async fn mine(mut self) -> Result<(), Box<dyn std::error::Error>> {
+    pub async fn mine(self) -> Result<(), Box<dyn std::error::Error>> {
         let mut valid_transactions = self.transaction_pool.read().await.valid_transactions();
 
         let wallet = self.wallet.read().await.clone();

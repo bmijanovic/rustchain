@@ -1,9 +1,6 @@
 use chrono::{Local, Utc};
 use crate::blockchain::block::Block;
-use crate::blockchain::blockchain::Blockchain;
-
-use crate::utils::config::{DIFFICULTY, MINE_RATE};
-use crate::wallet::transaction::Transaction;
+use crate::utils::config::{DIFFICULTY};
 
 #[test]
 fn test_block() {

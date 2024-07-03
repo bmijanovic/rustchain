@@ -1,11 +1,9 @@
 use std::fmt;
 use chrono::{DateTime, Local, Utc};
 use ecdsa::VerifyingKey;
-use k256::Secp256k1;
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 use uuid::Uuid;
-use crate::blockchain::block::Block;
 use crate::utils::config::MINING_REWARD;
 use crate::wallet::wallet::Wallet;
 use crate::utils::utils::crypto_hash;

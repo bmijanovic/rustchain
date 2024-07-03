@@ -1,20 +1,14 @@
 use futures::stream::StreamExt;
-use libp2p::{gossipsub, mdns, noise, PeerId, Swarm, swarm::NetworkBehaviour, swarm::SwarmEvent, SwarmBuilder, tcp, yamux};
+use libp2p::{gossipsub, mdns, noise, PeerId, Swarm, swarm::NetworkBehaviour, swarm::SwarmEvent, tcp, yamux};
 use std::collections::hash_map::DefaultHasher;
 use std::error::Error;
-use std::fmt::Pointer;
 use std::hash::{Hash, Hasher};
-use std::sync::Arc;
 use std::time::Duration;
-use futures::SinkExt;
 use libp2p::gossipsub::IdentTopic;
 use tokio::{select};
-use tokio::sync::mpsc::{Receiver, Sender};
-use tokio::sync::Mutex;
+use tokio::sync::mpsc::{Receiver};
 use tracing_subscriber::EnvFilter;
-use warp::reply::Json;
 use architecture::blockchain::block::Block;
-use architecture::blockchain::blockchain::Blockchain;
 use architecture::wallet::transaction::Transaction;
 use crate::Node;
 
@@ -28,7 +22,7 @@ pub(crate) struct MyBehaviour {
 
 
 
-pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, event_sender: Sender<String>, mut swarm: Swarm<MyBehaviour>) -> Result<(), Box<dyn Error>> {
+pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, mut swarm: Swarm<MyBehaviour>) -> Result<(), Box<dyn Error>> {
 
     let blockchain_topic = IdentTopic::new("blockchain");
     swarm.behaviour_mut().gossipsub.subscribe(&blockchain_topic)?;

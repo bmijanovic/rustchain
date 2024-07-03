@@ -1,10 +1,9 @@
 use std::ops::DerefMut;
 use std::sync::Arc;
 use tokio::sync::{Mutex};
-use libp2p::gossipsub::{Event, IdentTopic};
 use warp::http::StatusCode;
 use crate::Node;
-use crate::types::dto::{BlockchainData, TransactionData};
+use crate::types::dto::{TransactionData};
 
 pub async fn hello_world() -> Result<impl warp::Reply, warp::Rejection> {
     Ok(warp::reply::json(&"Hello, world!"))
@@ -19,7 +18,7 @@ pub async fn print_blockchain(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply
 
 
 pub async fn mine_block(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut node = node.lock().await;
+    let node = node.lock().await;
     node.clone().mine().await.expect("Failed to mine block");
     Ok(warp::reply::json(&"mined"))
 }
@@ -31,7 +30,7 @@ pub async fn print_transactions(node: Arc<Mutex<Node>>) -> Result<impl warp::Rep
 }
 
 pub async fn post_transaction(node: Arc<Mutex<Node>>, data: TransactionData) -> Result<impl warp::Reply, warp::Rejection> {
-    let mut node = node.lock().await;
+    let node = node.lock().await;
     let mut wallet = node.wallet.write().await.clone();
     let blockchain = node.blockchain.read().await.clone();
     let transaction = wallet.create_transaction(data.recipient, data.amount,
