@@ -1,15 +1,16 @@
 use std::ops::DerefMut;
 use std::sync::Arc;
-use tokio::sync::{Mutex};
+
+use tokio::sync::Mutex;
 use warp::http::StatusCode;
+
 use crate::Node;
-use crate::types::dto::{TransactionData};
+use crate::types::dto::TransactionData;
 
 pub async fn hello_world() -> Result<impl warp::Reply, warp::Rejection> {
     Ok(warp::reply::json(&"Hello, world!"))
 }
 
-// print the blockchain from node
 pub async fn print_blockchain(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
     let node = node.lock().await;
     let blockchain = node.blockchain.read().await.clone();
