@@ -12,7 +12,6 @@ use architecture::blockchain::block::Block;
 use architecture::wallet::transaction::Transaction;
 use crate::Node;
 
-// We create a custom network behaviour that combines Gossipsub and Mdns.
 #[derive(NetworkBehaviour)]
 pub(crate) struct MyBehaviour {
     pub(crate) gossipsub: gossipsub::Behaviour,
@@ -24,6 +23,10 @@ pub(crate) struct MyBehaviour {
 
 pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, mut swarm: Swarm<MyBehaviour>) -> Result<(), Box<dyn Error>> {
 
+    // swarm.listen_on("/ip4/0.0.0.0/udp/0/quic-v1".parse()?)?;
+    swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
+    // swarm.listen_on("/ip4/localhost/tcp/0".parse()?)?;
+
     let blockchain_topic = IdentTopic::new("blockchain");
     swarm.behaviour_mut().gossipsub.subscribe(&blockchain_topic)?;
 
@@ -33,12 +36,10 @@ pub async fn subscribe(mut node: Node, mut event_receiver: Receiver<String>, mut
     let transaction_pool_clear_topic = IdentTopic::new("transaction_pool_clear");
     swarm.behaviour_mut().gossipsub.subscribe(&transaction_pool_clear_topic)?;
 
-    swarm.listen_on("/ip4/0.0.0.0/udp/0/quic-v1".parse()?)?;
-    swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
-
+    //sleep for 4 seconds to allow the server to start
+    tokio::time::sleep(tokio::time::Duration::from_secs(4)).await;
 
     loop {
-
         select! {
             event = swarm.select_next_some() => {
                 handle_event(&mut swarm, event, &mut node).await;
@@ -81,9 +82,7 @@ async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehavi
             for (peer_id, _multiaddr) in list {
                 println!("mDNS discovered a new peer: {peer_id}");
                 swarm.behaviour_mut().gossipsub.add_explicit_peer(&peer_id);
-                send_message(swarm, &IdentTopic::new("blockchain"), serde_json::to_string(&node.blockchain.read().await.chain).unwrap());
             }
-
 
         },
         SwarmEvent::Behaviour(MyBehaviourEvent::Mdns(mdns::Event::Expired(list))) => {
@@ -102,7 +101,17 @@ async fn handle_event(swarm: &mut Swarm<MyBehaviour>, event: SwarmEvent<MyBehavi
         SwarmEvent::NewListenAddr { address, .. } => {
             println!("Local node is listening on {address}");
         }
-        _ => {}
+        SwarmEvent::Behaviour(MyBehaviourEvent::Gossipsub(gossipsub::Event::Subscribed { peer_id, topic })) => {
+            println!("Subscribed to '{topic}' from {peer_id}");
+            if topic.as_str() == "blockchain" {
+                send_message(swarm, &IdentTopic::new("blockchain"), serde_json::to_string(&node.blockchain.read().await.chain).unwrap());
+            }
+
+            // send_message(swarm, &IdentTopic::new("blockchain"), serde_json::to_string(&node.blockchain.read().await.chain).unwrap());
+        }
+        other => {
+            println!("Other event: {:?}", other);
+        }
     }
 }
 
@@ -153,8 +162,11 @@ pub fn build_swarm() -> Result<libp2p::Swarm<MyBehaviour>, Box<dyn Error>> {
             };
 
             let gossipsub_config = gossipsub::ConfigBuilder::default()
-                .heartbeat_interval(Duration::from_secs(10))
-                .validation_mode(gossipsub::ValidationMode::Strict)
+                .heartbeat_interval(Duration::from_secs(1))
+                .validation_mode(gossipsub::ValidationMode::Permissive)
+                .mesh_n(12)  // Increased number of peers in mesh
+                .mesh_n_low(6)
+                .duplicate_cache_time(Duration::from_secs(0))
                 .message_id_fn(message_id_fn)
                 .build()
                 .map_err(|msg| std::io::Error::new(std::io::ErrorKind::Other, msg))?;

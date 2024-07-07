@@ -1,5 +1,4 @@
-# Specifikacija Projekta: Implementacija Blockchaina sa Kriptovalutom i Pametnim Ugovorima u Rustu
-
+# Specifikacija Projekta: Implementacija Blockchaina sa Kriptovalutom u Rustu
 ## 1. Uvod
 
 Cilj ovog projekta je izrada blockchain sistema koji podržava kriptovalutu i pametne ugovore koristeći programski jezik Rust. Sistem će obuhvatiti sve ključne komponente potrebne za funkcionalan i siguran blockchain, uključujući proof-of-work (PoW) konsenzusni mehanizam, digitalni wallet za korisnike, mrežni sloj za razmenu transakcija, kao i mogućnost kreiranja i izvršavanja pametnih ugovora.
