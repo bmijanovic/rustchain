@@ -1,0 +1,33 @@
+\documentclass[12pt, a4paper]{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage[final]{pdfpages}
+\usepackage[serbian]{babel} % Use the Serbian language package
+\usepackage{fontspec} % Required for using system fonts
+\usepackage{geometry} % Required for setting page size
+\usepackage{fancyhdr} % Required for custom headers and footers
+
+% Set the main font to Arial
+\setmainfont{Arial}
+
+% Set the A4 paper size and margins
+\geometry{a4paper, margin=1in}
+
+% Customize headers and footers
+\pagestyle{fancy}
+\fancyhf{} % Clear header and footer
+\fancyfoot[R]{\thepage} % Right align page number in the footer
+\renewcommand{\headrule}{} % Remove header line
+
+\begin{document}
+
+\includepdf[pages=-]{prva_strana.pdf}
+% Rename the table of contents title to Cyrillic
+\renewcommand{\contentsname}{Садржај}
+\tableofcontents
+\pagebreak
+
+\section{Увод}
+
+Ово је тест текста на ћирилици.
+
+\end{document}
