@@ -538,9 +538,9 @@ pub struct Node{
 \begin{itemize}
     \item \textbf{\textit{blockchain}}: Ово поље представља \textit{blockchain} који чвор одржава. Користи се \textit{Arc\footnotemark{1}<RwLock\footnotemark{2}<Blockchain>>} за омогућавање сигурног приступа \textit{blockchain}-у из више нитова, обезбеђујући истовремени приступ без конфликта.
     \item \textbf{\textit{host\_port}}: Овај атрибут чува информације о порту на којем чвор слуша за долазне везе. Формат је \textit{String}, који омогућава лако конфигурисање и читање из подешавања.
-    \item \textbf{\textit{event\_sender}}: Пошиљалац догађаја је опциони атрибут \newline(\textit{Option<mpsc::Sender<String>>}) који омогућава слање догађаја другим компонентама система. Користи се за међусобну комуникацију унутар чвора.
-    \item \textbf{\textit{wallet}}: Новчаник чвора који чува криптовалуте и кључеве. Користи се \newline\textit{Arc<RwLock<Wallet>>} за истовремени приступ из више нитова, обезбеђујући сигурност и интегритет података.
-    \item \textbf{\textit{transaction\_pool}}: Базен трансакција који чвор одржава. Ово поље \newline(\textit{Arc<RwLock<TransactionPool>>}) омогућава складиштење и приступ тренутним трансакцијама које чекају да буду додане у \textit{blockchain}.
+    \item \textbf{\textit{event\_sender}}: Пошиљалац догађаја је опциони атрибут \linebreak(\textit{Option<mpsc::Sender<String>>}) који омогућава слање догађаја другим компонентама система. Користи се за међусобну комуникацију унутар чвора.
+    \item \textbf{\textit{wallet}}: Новчаник чвора који чува криптовалуте и кључеве. Користи се \linebreak\textit{Arc<RwLock<Wallet>>} за истовремени приступ из више нитова, обезбеђујући сигурност и интегритет података.
+    \item \textbf{\textit{transaction\_pool}}: Базен трансакција који чвор одржава. Ово поље \linebreak(\textit{Arc<RwLock<TransactionPool>>}) омогућава складиштење и приступ тренутним трансакцијама које чекају да буду додане у \textit{blockchain}.
 \end{itemize}
 \footnotetext[1]{\textit{Arc (Atomic Reference Counted)} је структура у програмском језику \textit{Rust} која омогућава сигурно дељење података између више нитова. Користи атомски бројач референци да би осигурала да ће подаци бити ослобођени када више не буде референци на њих.}
 \footnotetext[2]{\textit{RwLock (Read-Write Lock)} је механизам закључавања који омогућава више читалаца да истовремено приступају подацима, али само један писач може да приступа подацима у истом тренутку. Омогућава ефикасно управљање приступом разликовањем читања од писања.}
@@ -600,7 +600,6 @@ swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
 
 
 
-
 Чворови се претплаћују на различите теме и обрађују догађаје који се појављују на мрежи. Ово укључује слушање на одређеним адресама и обраду порука које се примају. Три теме које чворови прате су:
 \begin{enumerate}
     \item \textbf{\textit{blockchain}}
@@ -628,6 +627,75 @@ swarm.listen_on("/ip4/0.0.0.0/tcp/0".parse()?)?;
 Када чвор прими поруку о чишћењу базена трансакција, он уклања све трансакције које су укључене у нови блок из свог базена трансакција. Ово осигурава да базен трансакција садржи само трансакције које још нису укључене у \textit{blockchain}.
 \newpage
 \subsection{\textit{HTTP} сервер}
+\textit{HTTP} сервер за \textit{blockchain} клијента је веб сервер који пружа интерфејс за комуникацију са \textit{blockchain} мрежом преко \textit{HTTP} протокола. Овај сервер омогућава корисницима и другим апликацијама да интеракцију са \textit{blockchain}-ом мрежом путем различитих \textit{endpoint}-ова, што укључује прегледивање \textit{blockchain}-а, вршење трансакција и управљање новчаником.
+
+Сервер користи асинхроне функције које омогућавају ефикасно руковање \textit{HTTP} захтевима без блокирања. Функције користе \textit{await} за чекање на резултате асинхроних операција као што су закључавање \textit{mutex}-а или читање података из \textit{blockchain}-а. Пример једне функције је дат у коду који следи:
+
+\begin{minted}[breaklines]{rust}
+pub async fn get_wallet_balance(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
+    let node = node.lock().await;
+    let wallet = node.wallet.read().await.clone();
+    let blockchain = node.blockchain.read().await.clone();
+    let balance = wallet.calculate_balance(&blockchain);
+    Ok(warp::reply::with_status(warp::reply::json(&balance), StatusCode::OK))
+}
+\end{minted}
+
+Да бисмо у сваки \textit{HTTP} захтев додали копију објекта чвора морамо направити одговарајући филтер. \textit{warp::any()} ствара филтер који прихвата све захтеве без додатних услова, док метод \textit{map(move || node.clone())} дефинише анонимну функцију која враћа копију \textit{node}. Кључна реч \textit{move} осигурава да затвор преузме власништво над \textit{node}, што омогућава сигурно коришћење \textit{node} у асинхроним функцијама. Овај филтер омогућава рутама да приступе \textit{node} објекту, који може бити дељен и коришћен за различите операције унутар \textit{HTTP} сервера. Код је приказан испод:
+
+\begin{minted}{rust}
+    let node_filter = warp::any().map(move || node.clone());
+\end{minted}
+
+
+\textit{Warp} користи филтере за дефинисање рута и обраду захтева. Свакa рута (\textit{/blockchain, /mine, /transaction}, итд.) је дефинисана помоћу комбинaција \textit{warp::get(),\newline warp::post()}, и других метода за спецификацију \textit{HTTP} метода и путања. Филтери омогућавају повезивање руте са одговарајућим асинхроним функцијама које обрађују захтеве. Пример једног таквог захтева је у коду који следи:
+
+\begin{minted}[breaklines]{rust}
+let wallet_balance = warp::get()
+        .and(warp::path("balance"))
+        .and(warp::path::end())
+        .and(node_filter.clone())
+        .and_then(routes::get_wallet_balance);
+\end{minted}
+
+
+\textit{CORS (Cross-Origin Resource Sharing)} је конфигурисан путем \textit{warp::cors()} како би се омогућио приступ серверу из различитих извора. Ово је посебно важно за клијенте који се налазе на различитим доменима или портовима. 
+
+\begin{minted}[breaklines]{rust}
+let cors = warp::cors()
+        .allow_any_origin()
+        .allow_header("content-type")
+        .allow_methods(&[
+            Method::PUT,
+            Method::DELETE,
+            Method::GET,
+            Method::POST,
+        ]);
+
+\end{minted}
+
+
+Руте се конфигуришу тако што \textit{Warp} спаја различите филтере који одговарају на различите врсте захтева. Почиње са основним рутом а затим користи метод \textit{or} за додавање додатних рута. Метод \textit{or} омогућава да се свака рутa додатно обрађује ако претходна рутa не одговара на захтев. Након дефинисања рутa, код додаје \textit{CORS} конфигурацију помоћу \textit{.with(cors)}, што омогућава захтеве из различитих извора, и укључује праћење захтева користећи \textit{.with(warp::trace::request())} за записивање информација о свим \textit{HTTP} захтевима, што помаже у дебаговању и надзору.
+
+\begin{minted}[breaklines]{rust}
+hello
+    .or(blockchain)
+    .or(mine_block)
+    .or(print_transactions)
+    .or(post_transaction)
+    .or(public_key)
+    .or(wallet_balance)
+    .with(cors)
+    .with(warp::trace::request())
+\end{minted}
+
+Функција \textit{run\_server} користи \textit{warp::serve()} за покретање сервера на специфичној \textit{IP} адреси и порту. \textit{IP} адреса [0, 0, 0, 0] значи да сервер слуша на свим доступним мрежним интерфејсима, док се порт преузима из конфигурације објекта чвора.
+
+\begin{minted}[breaklines]{rust}
+let host_port: u16 = node.lock().await.host_port.parse().unwrap();
+warp::serve(routes).run(([0, 0, 0, 0], host_port)).await;
+\end{minted}
+
 \newpage
 \section{Ограничења и унапређења}
 \newpage
