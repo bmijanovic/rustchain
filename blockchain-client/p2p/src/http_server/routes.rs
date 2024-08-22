@@ -5,7 +5,7 @@ use tokio::sync::Mutex;
 use warp::http::StatusCode;
 
 use crate::Node;
-use crate::types::dto::TransactionData;
+use crate::types::dto::{Balance, PublicKey, TransactionData};
 
 pub async fn hello_world() -> Result<impl warp::Reply, warp::Rejection> {
     Ok(warp::reply::json(&"Hello, world!"))
@@ -21,7 +21,7 @@ pub async fn print_blockchain(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply
 pub async fn mine_block(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
     let node = node.lock().await;
     node.clone().mine().await.expect("Failed to mine block");
-    Ok(warp::reply::json(&"mined"))
+    Ok(warp::reply::with_status(warp::reply(), StatusCode::OK))
 }
 
 pub async fn print_transactions(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
@@ -47,7 +47,10 @@ pub async fn post_transaction(node: Arc<Mutex<Node>>, data: TransactionData) -> 
 pub async fn get_public_key(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
     let node = node.lock().await;
     let wallet = node.wallet.read().await.clone();
-    Ok(warp::reply::with_status(warp::reply::json(&wallet.public_key), StatusCode::OK))
+    let pk = PublicKey {
+        public_key: wallet.public_key.clone()
+    };
+    Ok(warp::reply::with_status(warp::reply::json(&pk), StatusCode::OK))
 }
 
 pub async fn get_wallet_balance(node: Arc<Mutex<Node>>) -> Result<impl warp::Reply, warp::Rejection> {
@@ -55,5 +58,8 @@ pub async fn get_wallet_balance(node: Arc<Mutex<Node>>) -> Result<impl warp::Rep
     let wallet = node.wallet.read().await.clone();
     let blockchain = node.blockchain.read().await.clone();
     let balance = wallet.calculate_balance(&blockchain);
+    let balance = Balance {
+        balance
+    };
     Ok(warp::reply::with_status(warp::reply::json(&balance), StatusCode::OK))
 }
